@@ -11,15 +11,12 @@ exports.createAlbum = async (req, res) => {
     [name, year, artistID]
   );
   res.status(201).json(album);
-  console.log(album);
 };
 
 exports.readAllAlbums = async (req, res) => {
   try {
-    const {
-      rows: [album],
-    } = await db.query("SELECT * FROM Albums");
-    res.status(200).json(album);
+    const { rows } = await db.query("SELECT * FROM Albums");
+    res.status(200).json(rows);
   } catch (err) {
     res.status(500).json(err.message);
   }

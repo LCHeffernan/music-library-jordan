@@ -39,7 +39,6 @@ describe("read album", () => {
         year: 1973,
       },
     ];
-    //for every artist, check against albums, if they match, send album to database
     artists.forEach(async (artist) => {
       let n = 0;
       let id;
@@ -50,7 +49,6 @@ describe("read album", () => {
             name: albums[n].name,
             year: albums[n].year,
           });
-          // console.log(n, artist.name, albums[n].name);
           return;
         } else {
           n += 1;
@@ -63,6 +61,9 @@ describe("read album", () => {
     it("reads all albums in the table", async () => {
       const { status, body } = await request(app).get("/albums").send();
       expect(status).to.equal(200);
+      expect(body.length).to.equal(3);
+
+      console.log(body);
     });
   });
 });
