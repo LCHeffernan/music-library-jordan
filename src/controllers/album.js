@@ -10,6 +10,17 @@ exports.createAlbum = async (req, res) => {
     "INSERT INTO Albums (name, year, artistID) VALUES ($1, $2, $3) RETURNING *",
     [name, year, artistID]
   );
-  console.log(album);
   res.status(201).json(album);
+  console.log(album);
+};
+
+exports.readAllAlbums = async (req, res) => {
+  try {
+    const {
+      rows: [album],
+    } = await db.query("SELECT * FROM Albums");
+    res.status(200).json(album);
+  } catch (err) {
+    res.status(500).json(err.message);
+  }
 };
