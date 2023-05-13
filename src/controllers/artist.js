@@ -31,13 +31,12 @@ exports.readSingleArtist = async (req, res) => {
     const {
       rows: [artist],
     } = await db.query(`SELECT * FROM Artists WHERE id = ${id}`);
-    if (artist) {
-      res.status(200).json(artist);
-    } else {
-      throw new Error();
+    if (!artist) {
+      res.status(404).json({ message: `artist ${id} does not exist` });
     }
+    res.status(200).json(artist);
   } catch (err) {
-    res.status(404).json({ message: `artist ${id} does not exist` });
+    res.status(500).json(err.message);
   }
 };
 
@@ -52,13 +51,12 @@ exports.replaceArtist = async (req, res) => {
       "UPDATE Artists SET name = $1, genre = $2 WHERE id = $3 RETURNING *",
       [name, genre, id]
     );
-    if (artist) {
-      res.status(200).json(artist);
-    } else {
-      throw new Error();
+    if (!artist) {
+      res.status(404).json({ message: `artist ${id} does not exist` });
     }
+    res.status(200).json(artist);
   } catch (err) {
-    res.status(404).json({ message: `artist ${id} does not exist` });
+    res.status(500).json(err.message);
   }
 };
 
@@ -78,18 +76,18 @@ exports.updateArtist = async (req, res) => {
     query = `UPDATE Artists SET genre = $1 WHERE id = $2 RETURNING *`;
     params = [genre, id];
   }
-
   try {
     const {
       rows: [artist],
     } = await db.query(query, params);
 
     if (!artist) {
-      throw new Error();
+      return res.status(404).json({ message: `artist ${id} does not exist` });
     }
+
     res.status(200).json(artist);
   } catch (err) {
-    res.status(404).json({ message: `artist ${id} does not exist` });
+    res.status(500).json(err.message);
   }
 };
 
@@ -102,10 +100,10 @@ exports.deleteArtist = async (req, res) => {
     } = await db.query("DELETE FROM Artists WHERE id = $1 RETURNING *", [id]);
 
     if (!artist) {
-      throw new Error();
+      res.status(404).json({ message: `artist ${id} does not exist` });
     }
     res.status(200).json(artist);
   } catch (err) {
-    res.status(404).json({ message: `artist ${id} does not exist` });
+    res.status(500).json(err.message);
   }
 };

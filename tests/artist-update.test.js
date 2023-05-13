@@ -53,11 +53,11 @@ describe("Update Artist", () => {
     });
     it("returns a 404 if the artist does not exist", async () => {
       const { status, body } = await request(app)
-        .patch("/artists/123456789")
-        .send();
+        .patch("/artists/999999999")
+        .send({ name: "something different", genre: "rock" });
 
       expect(status).to.equal(404);
-      expect(body.message).to.equal("artist 123456789 does not exist");
+      expect(body.message).to.equal("artist 999999999 does not exist");
     });
   });
 });
