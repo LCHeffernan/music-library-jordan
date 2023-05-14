@@ -3,14 +3,14 @@ const request = require("supertest");
 const db = require("../src/db");
 const app = require("../src/app");
 
-describe("read album", () => {
+describe("Read Albums", () => {
   let artists;
   let albums;
   beforeEach(async () => {
-    const responses = await Promise.all([
+    const artistData = await Promise.all([
       db.query(
         "INSERT INTO Artists (name, genre) VALUES( $1, $2) RETURNING *",
-        ["Kasabian", "rock"]
+        ["Fleetwood Mac", "rock"]
       ),
       db.query(
         "INSERT INTO Artists (name, genre) VALUES( $1, $2) RETURNING *",
@@ -18,53 +18,56 @@ describe("read album", () => {
       ),
       db.query(
         "INSERT INTO Artists (name, genre) VALUES( $1, $2) RETURNING *",
-        ["Stevie Wonder", "motown"]
+        ["The Avalanches", "electronic"]
       ),
     ]);
-    artists = responses.map(({ rows }) => rows[0]);
+    artists = artistData.map(({ rows }) => rows[0]);
 
-    albums = [
-      {
-        artist: "Kasabian",
-        name: "Velociraptor",
-        year: 2011,
-      },
-      {
-        artist: "Chemical Brothers",
-        name: "Brotherhood",
-        year: 2008,
-      },
-      {
-        artist: "Stevie Wonder",
-        name: "Innervisions",
-        year: 1973,
-      },
-    ];
-    artists.forEach(async (artist) => {
-      let n = 0;
-      let id;
-      while (n < albums.length) {
-        if (artist.name === albums[n].artist) {
-          id = artist.id;
-          await request(app).post(`/artists/${id}/albums`).send({
-            name: albums[n].name,
-            year: albums[n].year,
-          });
-          return;
-        } else {
-          n += 1;
-        }
-      }
-    });
+    const albumData = await Promise.all([
+      db.query(
+        "INSERT INTO Albums (name, year, artistid) VALUES( $1, $2, $3) RETURNING *",
+        ["Rumours", 1977, artists[0].id]
+      ),
+      db.query(
+        "INSERT INTO Albums (name, year, artistid) VALUES( $1, $2, $3) RETURNING *",
+        ["Brotherhood", 2008, artists[1].id]
+      ),
+      db.query(
+        "INSERT INTO Albums (name, year, artistid) VALUES( $1, $2, $3) RETURNING *",
+        ["Wildflower", 2016, artists[2].id]
+      ),
+    ]);
+    albums = albumData.map(({ rows }) => rows[0]);
   });
 
   describe("GET /albums", () => {
-    it("reads all albums in the table", async () => {
+    it("returns all artist records in the database", async () => {
       const { status, body } = await request(app).get("/albums").send();
-      const testID = body[0].id;
+
       expect(status).to.equal(200);
       expect(body.length).to.equal(3);
-      expect(testID).to.equal(2);
+      expect(body[0].name).to.equal(albums[0].name);
+      expect(body[1].year).to.equal(albums[1].year);
+      expect(body[2].artistid).to.equal(artists[2].id);
+    });
+
+    describe("GET /albums/{id}", () => {
+      it("returns the correct album when passed an id", async () => {
+        const { status, body } = await request(app)
+          .get(`/albums/${albums[0].id}`)
+          .send();
+        expect(status).to.equal(200);
+        expect(body.name).to.equal(albums[0].name);
+      });
+
+      it("returns a 404 if the album does not exist", async () => {
+        const { status, body } = await request(app)
+          .get("/albums/123456789")
+          .send();
+
+        expect(status).to.equal(404);
+        expect(body.message).to.equal("album 123456789 does not exist");
+      });
     });
   });
 });
