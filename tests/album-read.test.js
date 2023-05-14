@@ -5,6 +5,7 @@ const app = require("../src/app");
 
 describe("read album", () => {
   let artists;
+  let albums;
   beforeEach(async () => {
     const responses = await Promise.all([
       db.query(
@@ -22,7 +23,7 @@ describe("read album", () => {
     ]);
     artists = responses.map(({ rows }) => rows[0]);
 
-    const albums = [
+    albums = [
       {
         artist: "Kasabian",
         name: "Velociraptor",
@@ -60,10 +61,10 @@ describe("read album", () => {
   describe("GET /albums", () => {
     it("reads all albums in the table", async () => {
       const { status, body } = await request(app).get("/albums").send();
+      const testID = body[0].id;
       expect(status).to.equal(200);
       expect(body.length).to.equal(3);
-
-      console.log(body);
+      expect(testID).to.equal(2);
     });
   });
 });
