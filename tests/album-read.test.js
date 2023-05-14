@@ -41,7 +41,7 @@ describe("Read Albums", () => {
   });
 
   describe("GET /albums", () => {
-    it("returns all artist records in the database", async () => {
+    it("returns all album records in the database", async () => {
       const { status, body } = await request(app).get("/albums").send();
 
       expect(status).to.equal(200);
