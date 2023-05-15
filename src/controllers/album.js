@@ -1,4 +1,4 @@
-const db = require("../db/index");
+const db = require('../db/index');
 
 exports.createAlbum = async (req, res) => {
   const { name, year } = req.body;
@@ -7,7 +7,7 @@ exports.createAlbum = async (req, res) => {
   const {
     rows: [album],
   } = await db.query(
-    "INSERT INTO Albums (name, year, artistID) VALUES ($1, $2, $3) RETURNING *",
+    'INSERT INTO Albums (name, year, artistID) VALUES ($1, $2, $3) RETURNING *',
     [name, year, artistID]
   );
   res.status(201).json(album);
@@ -15,7 +15,7 @@ exports.createAlbum = async (req, res) => {
 
 exports.readAllAlbums = async (req, res) => {
   try {
-    const { rows } = await db.query("SELECT * FROM Albums");
+    const { rows } = await db.query('SELECT * FROM Albums');
     res.status(200).json(rows);
   } catch (err) {
     res.status(500).json(err.message);
@@ -45,7 +45,7 @@ exports.replaceAlbum = async (req, res) => {
     const {
       rows: [album],
     } = await db.query(
-      "UPDATE Albums SET name = $1, year = $2, artistID = $3 WHERE id = $4 RETURNING *",
+      'UPDATE Albums SET name = $1, year = $2, artistID = $3 WHERE id = $4 RETURNING *',
       [name, year, artistID, id]
     );
     if (!album) {
@@ -94,7 +94,7 @@ exports.deleteAlbum = async (req, res) => {
   try {
     const {
       rows: [album],
-    } = await db.query("DELETE FROM Albums WHERE id = $1 RETURNING *", [id]);
+    } = await db.query('DELETE FROM Albums WHERE id = $1 RETURNING *', [id]);
 
     if (!album) {
       res.status(404).json({ message: `album ${id} does not exist` });
